@@ -13,10 +13,10 @@
   "scripts": {
     "build": "npm run clean && npm run compile && npm run bundle",
     "clean": "rimraf dist",
-    "compile": "tsc -p tsconfig.build.json",
+    "compile": "tsc -p config/tsconfig.build.json",
     "bundle": "rollup -c config/rollup.config.js",
-    "lint": "eslint src/**/*.ts",
-    "lint:fix": "eslint src/**/*.ts --fix",
+    "lint": "eslint src/**/*.ts -c config/.eslintrc.js",
+    "lint:fix": "eslint src/**/*.ts -c config/.eslintrc.js --fix",
     "docs": "typedoc --out docs/api src/index.ts",
     "prepublishOnly": "npm run build"
   },
