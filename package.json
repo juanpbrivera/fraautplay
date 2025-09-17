@@ -1,0 +1,59 @@
+{
+  "name": "@automation/web-automation-framework",
+  "version": "1.0.0",
+  "description": "Framework de automatización web con Playwright",
+  "main": "dist/index.js",
+  "module": "dist/index.esm.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "npm run clean && npm run compile && npm run bundle",
+    "clean": "rimraf dist",
+    "compile": "tsc -p tsconfig.build.json",
+    "bundle": "rollup -c config/rollup.config.js",
+    "lint": "eslint src/**/*.ts",
+    "lint:fix": "eslint src/**/*.ts --fix",
+    "docs": "typedoc --out docs/api src/index.ts",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "playwright",
+    "automation",
+    "testing",
+    "web",
+    "framework"
+  ],
+  "author": "Your Team",
+  "license": "MIT",
+  "dependencies": {
+    "@playwright/test": "^1.40.0",
+    "playwright": "^1.40.0",
+    "pino": "^8.16.0",
+    "pino-pretty": "^10.2.0",
+    "csv-parser": "^3.0.0",
+    "dotenv": "^16.3.1",
+    "js-yaml": "^4.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.8.0",
+    "@types/js-yaml": "^4.0.8",
+    "@typescript-eslint/eslint-plugin": "^6.7.0",
+    "@typescript-eslint/parser": "^6.7.0",
+    "eslint": "^8.50.0",
+    "rimraf": "^5.0.1",
+    "rollup": "^3.29.0",
+    "@rollup/plugin-typescript": "^11.1.0",
+    "@rollup/plugin-node-resolve": "^15.2.0",
+    "@rollup/plugin-commonjs": "^25.0.0",
+    "tslib": "^2.6.0",
+    "typedoc": "^0.25.0",
+    "typescript": "^5.2.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}
