@@ -1,5 +1,5 @@
 {
-  "extends": "./tsconfig.json",
+  "extends": "../tsconfig.json",
   "compilerOptions": {
     // 📦 COMPILACIÓN PARA DISTRIBUCIÓN
     "outDir": "./dist",                     // Directorio de salida
