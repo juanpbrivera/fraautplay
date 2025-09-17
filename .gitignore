@@ -1,0 +1,151 @@
+# 🔧 Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# 📦 Build outputs
+dist/
+build/
+out/
+*.tsbuildinfo
+.rollup.cache/
+
+# 🧪 Testing
+coverage/
+.nyc_output/
+test-results/
+playwright-report/
+playwright/.cache/
+test-artifacts/
+*.har
+
+# 📸 Screenshots y Videos (generados durante tests)
+screenshots/
+videos/
+downloads/
+traces/
+errors/
+
+# 📊 Reportes
+reports/
+allure-report/
+allure-results/
+mochawesome-report/
+junit.xml
+test-report.html
+
+# 📁 Archivos temporales
+temp/
+tmp/
+.tmp/
+*.tmp
+*.temp
+.cache/
+
+# 💾 Datos de prueba locales
+data/*.local.csv
+data/*.test.csv
+sessions/
+
+# 🔍 IDE y Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+*.sublime-project
+.history/
+
+# 🍎 macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# 📝 Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# 🌍 Environment
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*.local
+config.local.json
+config.local.yaml
+
+# 📊 Performance y Analysis
+stats.html
+stats.json
+.clinic/
+.profile/
+
+# 🔐 Security
+*.pem
+*.key
+*.cert
+*.p12
+certificates/
+secrets/
+
+# 📚 Documentation (generated)
+docs/api/
+typedoc/
+
+# 🧹 Misc
+.grunt
+.lock-wscript
+.node_repl_history
+.npm
+.eslintcache
+.stylelintcache
+.prettierignore
+*.pid
+*.seed
+*.pid.lock
+
+# 🔧 Framework specific
+framework.config.local.json
+framework.config.local.yaml
+custom-matchers.local.ts
+
+# 📦 Package files
+*.tgz
+*.tar.gz
+*.zip
+
+# 🐛 Debug
+debug/
+.vscode/launch.json
+.vscode/tasks.json
+
+# 🔄 Backup files
+*.bak
+*.backup
+*backup/
+
+# 📱 OS specific
+$RECYCLE.BIN/
+.Spotlight-V100
+.Trashes

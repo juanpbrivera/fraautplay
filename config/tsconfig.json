@@ -1,0 +1,69 @@
+{
+  "compilerOptions": {
+    // 🎯 OBJETIVO: Generar código JavaScript moderno y seguro
+    "target": "ES2022",                      // JavaScript moderno con todas las características
+    "module": "commonjs",                    // Sistema de módulos para Node.js
+    "lib": ["ES2022", "DOM"],               // Bibliotecas disponibles (incluye DOM para web)
+    
+    // 📦 SALIDA: Dónde se genera el código compilado
+    "outDir": "./dist",                     // Carpeta de salida para el código compilado
+    "rootDir": "./src",                     // Carpeta raíz del código fuente
+    "declaration": true,                    // Genera archivos .d.ts (tipos para otros proyectos)
+    "declarationMap": true,                 // Mapas para debugging de tipos
+    "sourceMap": true,                      // Mapas para debugging del código
+    
+    // 🔒 SEGURIDAD: Configuración estricta para evitar errores
+    "strict": true,                         // Activa TODAS las verificaciones estrictas
+    "noImplicitAny": true,                  // Error si no se especifica el tipo
+    "strictNullChecks": true,               // null y undefined son tipos diferentes
+    "strictFunctionTypes": true,            // Verificación estricta de funciones
+    "strictBindCallApply": true,            // Verificación de bind, call y apply
+    "strictPropertyInitialization": true,   // Propiedades deben inicializarse
+    "noImplicitThis": true,                 // Error si 'this' no tiene tipo
+    "alwaysStrict": true,                   // Usa 'use strict' en el código generado
+    
+    // 🚨 CALIDAD: Detecta código problemático
+    "noUnusedLocals": true,                 // Error por variables no usadas
+    "noUnusedParameters": true,             // Error por parámetros no usados
+    "noImplicitReturns": true,              // Todas las rutas deben retornar algo
+    "noFallthroughCasesInSwitch": true,     // Casos de switch deben tener break
+    "noUncheckedIndexedAccess": true,       // Acceso a arrays puede ser undefined
+    
+    // 🔧 MÓDULOS: Configuración de importación
+    "esModuleInterop": true,                // Compatibilidad con módulos CommonJS
+    "allowSyntheticDefaultImports": true,   // Permite import default de CommonJS
+    "resolveJsonModule": true,              // Permite importar archivos JSON
+    "moduleResolution": "node",             // Resuelve módulos como Node.js
+    
+    // 🎨 CARACTERÍSTICAS: Habilita características modernas
+    "experimentalDecorators": true,         // Permite usar decoradores (@)
+    "emitDecoratorMetadata": true,          // Metadata para decoradores
+    
+    // 📚 OTRAS: Configuraciones adicionales
+    "skipLibCheck": true,                   // Acelera la compilación
+    "forceConsistentCasingInFileNames": true, // Nombres de archivo consistentes
+    "removeComments": false,                // Mantiene comentarios en el código
+    "preserveConstEnums": true,             // Preserva enums const
+    
+    // 🔌 PATHS: Alias para importaciones más limpias
+    "baseUrl": "./src",
+    "paths": {
+      "@core/*": ["core/*"],
+      "@elements/*": ["elements/*"],
+      "@interactions/*": ["interactions/*"],
+      "@validations/*": ["validations/*"],
+      "@utilities/*": ["utilities/*"],
+      "@types/*": ["types/*"],
+      "@session/*": ["session/*"]
+    }
+  },
+  "include": [
+    "src/**/*"                               // Incluye todo el código fuente
+  ],
+  "exclude": [
+    "node_modules",                         // Excluye dependencias
+    "dist",                                 // Excluye código compilado
+    "**/*.spec.ts",                         // Excluye archivos de prueba
+    "**/*.test.ts"                          // Excluye archivos de test
+  ]
+}

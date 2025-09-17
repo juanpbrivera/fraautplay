@@ -1,0 +1,85 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    // 📦 COMPILACIÓN PARA DISTRIBUCIÓN
+    "outDir": "./dist",                     // Directorio de salida
+    "rootDir": "./src",                     // Directorio raíz del código fuente
+    
+    // 🎯 GENERACIÓN DE TIPOS
+    "declaration": true,                    // Generar archivos .d.ts
+    "declarationMap": true,                 // Generar mapas para debugging de tipos
+    "declarationDir": "./dist/types",       // Directorio para archivos de declaración
+    
+    // 🔧 CONFIGURACIÓN DE BUILD
+    "removeComments": true,                 // Eliminar comentarios en producción
+    "sourceMap": true,                      // Mantener source maps
+    "inlineSources": false,                 // No incluir fuentes en source maps
+    
+    // 📦 OPTIMIZACIÓN
+    "importHelpers": true,                  // Usar tslib para helpers
+    "downlevelIteration": true,             // Mejor soporte para iteradores
+    
+    // 🚫 EXCLUSIONES DE BUILD
+    "noEmit": false,                        // Permitir emisión (override de tsconfig.json)
+    "noEmitOnError": true,                  // No emitir si hay errores
+    
+    // 📋 CONFIGURACIÓN DE MÓDULOS PARA DISTRIBUCIÓN
+    "module": "ESNext",                     // Usar ESNext para mejor tree-shaking
+    "target": "ES2020",                     // Target moderno pero compatible
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    
+    // 🔄 RESOLUCIÓN DE MÓDULOS
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    
+    // 🎯 PATHS (se resolverán en el bundle)
+    "baseUrl": "./src",
+    "paths": {
+      "@core/*": ["core/*"],
+      "@elements/*": ["elements/*"],
+      "@interactions/*": ["interactions/*"],
+      "@validations/*": ["validations/*"],
+      "@utilities/*": ["utilities/*"],
+      "@types/*": ["types/*"],
+      "@session/*": ["session/*"]
+    },
+    
+    // 📚 TIPOS
+    "types": [
+      "node",
+      "@playwright/test"
+    ],
+    "typeRoots": [
+      "./node_modules/@types",
+      "./src/types"
+    ]
+  },
+  
+  // 📁 ARCHIVOS A INCLUIR EN BUILD
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx"
+  ],
+  
+  // 🚫 ARCHIVOS A EXCLUIR DE BUILD
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/*.spec.ts",
+    "**/*.test.ts",
+    "**/__tests__/**",
+    "**/__mocks__/**",
+    "src/**/*.stories.ts",
+    "src/examples/**",
+    "src/tests/**"
+  ],
+  
+  // 📦 CONFIGURACIÓN DE TS-NODE (para desarrollo)
+  "ts-node": {
+    "compilerOptions": {
+      "module": "commonjs",
+      "target": "ES2020"
+    }
+  }
+}
