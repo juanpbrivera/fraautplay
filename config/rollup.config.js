@@ -1,12 +1,12 @@
 // config/rollup.config.js
-import typescript from '@rollup/plugin-typescript';
-import resolve from '@rollup/plugin-node-resolve';
-import commonjs from '@rollup/plugin-commonjs';
-import json from '@rollup/plugin-json';
+const typescript = require('@rollup/plugin-typescript');
+const resolve = require('@rollup/plugin-node-resolve');
+const commonjs = require('@rollup/plugin-commonjs');
+const json = require('@rollup/plugin-json');
 
 const external = [
   'playwright',
-  '@playwright/test',
+  '@playwright/test', 
   'pino',
   'pino-pretty',
   'csv-parse',
@@ -23,7 +23,7 @@ const external = [
   'child_process'
 ];
 
-export default [
+module.exports = [
   // CommonJS build
   {
     input: 'src/index.ts',
@@ -31,21 +31,18 @@ export default [
       file: 'dist/index.js',
       format: 'cjs',
       sourcemap: true,
-      exports: 'named',
-      interop: 'auto'  // Importante para compatibilidad
+      exports: 'named'
     },
     external,
     plugins: [
       resolve({
-        preferBuiltins: true,
-        exportConditions: ['node']
+        preferBuiltins: true
       }),
       json(),
       commonjs(),
       typescript({
         tsconfig: './config/tsconfig.build.json',
-        declaration: false,
-        outputToFilesystem: true
+        declaration: false
       })
     ]
   },
@@ -61,14 +58,13 @@ export default [
     external,
     plugins: [
       resolve({
-        preferBuiltins: true,
-        exportConditions: ['node']
+        preferBuiltins: true
       }),
       json(),
+      commonjs(),
       typescript({
         tsconfig: './config/tsconfig.build.json',
-        declaration: false,
-        outputToFilesystem: true
+        declaration: false
       })
     ]
   }

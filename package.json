@@ -2,9 +2,8 @@
   "name": "@automation/web-automation-framework",
   "version": "1.0.0",
   "description": "Framework de automatización web con Playwright",
-  "type": "module",
   "main": "dist/index.js",
-  "module": "./dist/index.esm.js",
+  "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
