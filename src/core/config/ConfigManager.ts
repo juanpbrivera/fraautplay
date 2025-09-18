@@ -1,10 +1,22 @@
 // src/core/config/ConfigManager.ts
 
-import { FrameworkConfig, PartialConfig, ConfigSource } from '../../types/ConfigTypes';
+import { 
+  FrameworkConfig, 
+  PartialConfig, 
+  ConfigSource,
+  ScreenshotConfig,
+  LoggingConfig,
+  TimeoutConfig,
+  PathConfig,
+  RetryConfig,
+  ParallelConfig,
+  EnvironmentConfig
+} from '../../types/ConfigTypes';
+import { BrowserOptions } from '../../types/FrameworkTypes';
 import { DefaultConfig } from './DefaultConfig';
 import * as fs from 'fs';
 import * as path from 'path';
-import * as yaml from 'js-yaml';
+import yaml from 'yaml';
 import * as dotenv from 'dotenv';
 import { Logger } from '../logging/Logger';
 
@@ -77,27 +89,45 @@ export class ConfigManager {
 
     // Mapear variables de entorno a configuración
     if (process.env.BROWSER_TYPE) {
-      envConfig.browser = { ...envConfig.browser, browserType: process.env.BROWSER_TYPE as any };
+      if (!envConfig.browser) {
+        envConfig.browser = {} as BrowserOptions;
+      }
+      envConfig.browser.browserType = process.env.BROWSER_TYPE as any;
     }
     
     if (process.env.HEADLESS) {
-      envConfig.browser = { ...envConfig.browser, headless: process.env.HEADLESS === 'true' };
+      if (!envConfig.browser) {
+        envConfig.browser = {} as BrowserOptions;
+      }
+      envConfig.browser.headless = process.env.HEADLESS === 'true';
     }
     
     if (process.env.BASE_URL) {
-      envConfig.environment = { ...envConfig.environment, baseUrl: process.env.BASE_URL } as any;
+      if (!envConfig.environment) {
+        envConfig.environment = {} as EnvironmentConfig;
+      }
+      envConfig.environment.baseUrl = process.env.BASE_URL;
     }
     
     if (process.env.LOG_LEVEL) {
-      envConfig.logging = { ...envConfig.logging, level: process.env.LOG_LEVEL as any };
+      if (!envConfig.logging) {
+        envConfig.logging = {} as LoggingConfig;
+      }
+      envConfig.logging.level = process.env.LOG_LEVEL as any;
     }
     
     if (process.env.PARALLEL_WORKERS) {
-      envConfig.parallel = { ...envConfig.parallel, workers: parseInt(process.env.PARALLEL_WORKERS) } as any;
+      if (!envConfig.parallel) {
+        envConfig.parallel = {} as ParallelConfig;
+      }
+      envConfig.parallel.workers = parseInt(process.env.PARALLEL_WORKERS);
     }
     
     if (process.env.RETRY_ATTEMPTS) {
-      envConfig.retry = { ...envConfig.retry, maxAttempts: parseInt(process.env.RETRY_ATTEMPTS) } as any;
+      if (!envConfig.retry) {
+        envConfig.retry = {} as RetryConfig;
+      }
+      envConfig.retry.maxAttempts = parseInt(process.env.RETRY_ATTEMPTS);
     }
 
     if (process.env.TIMEOUT) {
@@ -138,14 +168,17 @@ export class ConfigManager {
           break;
         case '.yaml':
         case '.yml':
-          fileConfig = yaml.load(fileContent) as PartialConfig;
+          fileConfig = yaml.parse(fileContent) as PartialConfig;
           break;
         case '.js':
         case '.ts':
           // Para archivos JS/TS, usar require
-          fileConfig = require(path.resolve(configPath));
-          if (fileConfig.default) {
-            fileConfig = fileConfig.default;
+          const imported = require(path.resolve(configPath));
+          // Verificar si el módulo tiene un export default
+          if (imported && typeof imported === 'object') {
+            fileConfig = imported.default || imported;
+          } else {
+            fileConfig = imported;
           }
           break;
         default:
@@ -300,7 +333,7 @@ export class ConfigManager {
         break;
       case '.yaml':
       case '.yml':
-        content = yaml.dump(this.config);
+        content = yaml.stringify(this.config);
         break;
       default:
         throw new Error(`Unsupported export format: ${ext}`);
