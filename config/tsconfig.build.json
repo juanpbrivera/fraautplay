@@ -1,4 +1,6 @@
-// config/tsconfig.build.json - TypeScript para build/distribución
+// ============================================
+// config/tsconfig.build.json - Configuración para build/distribución
+// ============================================
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
@@ -8,7 +10,8 @@
     "declarationMap": true,
     "emitDeclarationOnly": true,
     "sourceMap": false,
-    "removeComments": false
+    "removeComments": false,
+    "noEmit": false
   },
   "include": ["../src/**/*"],
   "exclude": [
