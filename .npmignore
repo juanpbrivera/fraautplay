@@ -1,0 +1,49 @@
+# Source files (only ship compiled)
+src/
+config/tsconfig.json
+config/tsconfig.build.json
+config/rollup.config.js
+config/.eslintrc.js
+
+# Development files
+.git/
+.gitignore
+.prettierrc
+.editorconfig
+
+# Test files
+**/*.test.ts
+**/*.spec.ts
+coverage/
+test-results/
+
+# Documentation source
+docs/
+
+# Local files
+.env
+.env.*
+*.log
+.DS_Store
+
+# Development directories
+screenshots/
+downloads/
+data/
+logs/
+.tmp/
+
+# IDE
+.vscode/
+.idea/
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+.travis.yml
+
+# Examples (if not needed in package)
+examples/
+
+# Build artifacts not needed
+*.tsbuildinfo

@@ -141,5 +141,5 @@ export interface ActionResult<T = any> {
   screenshot?: string;
 }
 
-// Exportación de tipos de Playwright para re-uso
+// Tipos de Playwright que usamos internamente - NO re-exportar
 export type { Page, Browser, BrowserContext, Locator, ElementHandle };
