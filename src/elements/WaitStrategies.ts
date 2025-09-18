@@ -160,28 +160,33 @@ export class WaitStrategies {
     const element = await this.waitForElement(page, locator, options);
     
     try {
+      // Esperar a que el elemento sea visible
       await element.waitFor({
         state: 'visible',
         timeout
       });
       
-      // Esperar a que el texto aparezca
-      await page.waitForFunction(
-        (el, expectedText) => {
-          const elem = document.querySelector(el);
-          return elem?.textContent?.includes(expectedText);
-        },
-        element.toString(),
-        text,
-        { timeout }
+      // Usar el método nativo de Playwright para esperar por texto
+      const startTime = Date.now();
+      let lastText = '';
+      
+      while (Date.now() - startTime < timeout) {
+        lastText = await element.textContent() || '';
+        if (lastText.includes(text)) {
+          this.logger.debug('Element contains expected text', {
+            locator: locator.description,
+            text
+          });
+          return element;
+        }
+        // Pequeña pausa antes de reintentar
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+      
+      // Si llegamos aquí, el texto no se encontró
+      throw new Error(
+        `Text "${text}" not found in element. Last text was: "${lastText}"`
       );
-      
-      this.logger.debug('Element contains expected text', {
-        locator: locator.description,
-        text
-      });
-      
-      return element;
     } catch (error) {
       this.logger.error('Text not found in element', error as Error, {
         locator: locator.description,
