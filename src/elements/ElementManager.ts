@@ -546,7 +546,6 @@ export class ElementManager {
    */
   private async captureScreenshot(prefix: string): Promise<string | undefined> {
     try {
-      // Este método será implementado en ScreenshotHelper
       return await ScreenshotHelper.capture(this.page, { 
         prefix,
         fullPage: true 

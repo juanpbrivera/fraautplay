@@ -18,6 +18,11 @@ export { ElementActions } from './elements/ElementActions';
 export { Locators } from './elements/Locators';
 export { WaitStrategies } from './elements/WaitStrategies';
 
+// Utilities
+export { ScreenshotHelper } from './utilities/ScreenshotHelper';
+export { DataManager } from './utilities/DataManager';
+export { FileUtils } from './utilities/FileUtils';
+
 // Types
 export * from './types/FrameworkTypes';
 export * from './types/ConfigTypes';
