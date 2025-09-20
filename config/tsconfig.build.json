@@ -4,14 +4,17 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "outDir": "../dist/types",
+    "outDir": "../dist",
     "rootDir": "../src",
     "declaration": true,
-    "declarationMap": true,
-    "emitDeclarationOnly": true,
-    "sourceMap": false,
+    "declarationMap": false,
+    "emitDeclarationOnly": false,
+    "sourceMap": true,
     "removeComments": false,
-    "noEmit": false
+    "noEmit": false,
+    "module": "commonjs",
+    "target": "ES2022",
+    "moduleResolution": "node"
   },
   "include": ["../src/**/*"],
   "exclude": [

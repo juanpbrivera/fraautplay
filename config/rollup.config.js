@@ -1,8 +1,8 @@
 // config/rollup.config.js
-const typescript = require('@rollup/plugin-typescript');
-const resolve = require('@rollup/plugin-node-resolve');
-const commonjs = require('@rollup/plugin-commonjs');
-const json = require('@rollup/plugin-json');
+const typescript = require('@rollup/plugin-typescript').default;
+const resolve = require('@rollup/plugin-node-resolve').default;
+const commonjs = require('@rollup/plugin-commonjs').default;
+const json = require('@rollup/plugin-json').default;
 
 const external = [
   'playwright',
@@ -30,30 +30,7 @@ module.exports = [
     output: {
       file: 'dist/index.js',
       format: 'cjs',
-      sourcemap: true,
       exports: 'named'
-    },
-    external,
-    plugins: [
-      resolve({
-        preferBuiltins: true
-      }),
-      json(),
-      commonjs(),
-      typescript({
-        tsconfig: './config/tsconfig.build.json',
-        declaration: false
-      })
-    ]
-  },
-  
-  // ES Module build
-  {
-    input: 'src/index.ts',
-    output: {
-      file: 'dist/index.esm.js',
-      format: 'es',
-      sourcemap: true
     },
     external,
     plugins: [
