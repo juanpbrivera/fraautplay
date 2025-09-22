@@ -62,7 +62,7 @@ export class Logger {
       level: this.config.level,
       timestamp: this.config.timestamp ? pino.stdTimeFunctions.isoTime : false,
       base: {
-        framework: 'web-automation',
+        // framework: 'web-automation',
         ...this.context,
       },
       serializers: {
