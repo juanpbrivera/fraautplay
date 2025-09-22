@@ -5,14 +5,11 @@ const commonjs = require('@rollup/plugin-commonjs').default;
 const json = require('@rollup/plugin-json').default;
 
 const external = [
-  'playwright',
-  '@playwright/test', 
+  '@playwright/test',
   'pino',
   'pino-pretty',
-  'csv-parse',
+  'csv-parser',
   'dotenv',
-  'js-yaml',
-  'yaml',
   'path',
   'fs',
   'crypto',
@@ -24,7 +21,6 @@ const external = [
 ];
 
 module.exports = [
-  // CommonJS build
   {
     input: 'src/index.ts',
     output: {

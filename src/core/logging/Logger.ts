@@ -1,15 +1,11 @@
 // src/core/logging/Logger.ts
 
-import pino, { Logger as PinoLogger } from 'pino';
+import pino, { Logger as PinoLogger, LoggerOptions } from 'pino';
 import { LogContext, LogLevel } from '../../types/FrameworkTypes';
 import { LoggingConfig } from '../../types/ConfigTypes';
 import * as fs from 'fs';
 import * as path from 'path';
 
-/**
- * Logger centralizado con Pino
- * Proporciona logging estructurado con niveles, contexto y formato personalizable
- */
 export class Logger {
   private pinoLogger: PinoLogger;
   private config: LoggingConfig;
@@ -22,27 +18,27 @@ export class Logger {
     this.pinoLogger = this.createPinoLogger();
   }
 
-  /**
-   * Crea una instancia de Pino con la configuración especificada
-   */
   private createPinoLogger(): PinoLogger {
     const streams: any[] = [];
 
-    // Stream de consola
+    // Stream de consola con Pino 9.5.0
     if (this.config.console) {
-      const consoleStream = this.config.prettyPrint
+      const consoleTransport = this.config.prettyPrint
         ? pino.transport({
             target: 'pino-pretty',
             options: {
               colorize: true,
               translateTime: this.config.timestamp ? 'UTC:yyyy-mm-dd HH:MM:ss.l' : false,
               ignore: 'pid,hostname',
-              messageFormat: '{msg} {context}',
+              messageKey: 'msg',
+              timestampKey: 'time',
+              levelFirst: true,
+              sync: false
             },
           })
-        : process.stdout;
+        : pino.destination({ sync: false });
 
-      streams.push({ stream: consoleStream });
+      streams.push({ stream: consoleTransport });
     }
 
     // Stream de archivo
@@ -57,20 +53,24 @@ export class Logger {
       });
     }
 
-    // Configuración base de Pino
-    const options: pino.LoggerOptions = {
+    // Configuración para Pino 9.5.0
+    const options: LoggerOptions = {
       level: this.config.level,
       timestamp: this.config.timestamp ? pino.stdTimeFunctions.isoTime : false,
-      base: {
-        // framework: 'web-automation',
-        ...this.context,
-      },
+      base: this.context,
       serializers: {
         error: pino.stdSerializers.err,
+        err: pino.stdSerializers.err,
+        req: pino.stdSerializers.req,
+        res: pino.stdSerializers.res
       },
+      formatters: {
+        level(label: string, number: number) {
+          return { level: number, levelLabel: label };
+        }
+      }
     };
 
-    // Crear logger con múltiples streams si es necesario
     if (streams.length > 1) {
       return pino(options, pino.multistream(streams));
     } else if (streams.length === 1) {
@@ -80,18 +80,12 @@ export class Logger {
     }
   }
 
-  /**
-   * Asegura que el directorio de logs existe
-   */
   private ensureLogDirectory(): void {
     if (!fs.existsSync(this.config.path)) {
       fs.mkdirSync(this.config.path, { recursive: true });
     }
   }
 
-  /**
-   * Obtiene o crea una instancia de logger para un contexto específico
-   */
   static getInstance(config: LoggingConfig, context: LogContext = {}): Logger {
     const key = JSON.stringify({ ...config, ...context });
     
@@ -102,70 +96,47 @@ export class Logger {
     return Logger.instances.get(key)!;
   }
 
-  /**
-   * Añade contexto adicional al logger
-   */
   withContext(additionalContext: LogContext): Logger {
     const newContext = { ...this.context, ...additionalContext };
     return new Logger(this.config, newContext);
   }
 
-  /**
-   * Log de nivel fatal
-   */
   fatal(message: string, data?: any): void {
     this.pinoLogger.fatal({ ...this.context, ...data }, message);
   }
 
-  /**
-   * Log de nivel error
-   */
   error(message: string, error?: Error | any, data?: any): void {
     if (error instanceof Error) {
-      this.pinoLogger.error({ ...this.context, error, ...data }, message);
+      this.pinoLogger.error({ ...this.context, err: error, ...data }, message);
     } else {
       this.pinoLogger.error({ ...this.context, ...error, ...data }, message);
     }
   }
 
-  /**
-   * Log de nivel warning
-   */
   warn(message: string, data?: any): void {
     this.pinoLogger.warn({ ...this.context, ...data }, message);
   }
 
-  /**
-   * Log de nivel info
-   */
   info(message: string, data?: any): void {
     this.pinoLogger.info({ ...this.context, ...data }, message);
   }
 
-  /**
-   * Log de nivel debug
-   */
   debug(message: string, data?: any): void {
     this.pinoLogger.debug({ ...this.context, ...data }, message);
   }
 
-  /**
-   * Log de nivel trace
-   */
   trace(message: string, data?: any): void {
     this.pinoLogger.trace({ ...this.context, ...data }, message);
   }
 
-  /**
-   * Log de inicio de operación
-   */
   startOperation(operation: string, details?: any): void {
-    this.info(`Starting ${operation}`, { operation, ...details, startTime: new Date().toISOString() });
+    this.info(`Starting ${operation}`, { 
+      operation, 
+      ...details, 
+      startTime: new Date().toISOString() 
+    });
   }
 
-  /**
-   * Log de fin de operación
-   */
   endOperation(operation: string, duration: number, success: boolean, details?: any): void {
     const level = success ? 'info' : 'error';
     this.pinoLogger[level](
@@ -174,9 +145,6 @@ export class Logger {
     );
   }
 
-  /**
-   * Log de métrica
-   */
   metric(name: string, value: number, unit: string, tags?: Record<string, string>): void {
     this.info(`Metric: ${name}`, {
       metric: {
@@ -189,18 +157,14 @@ export class Logger {
     });
   }
 
-  /**
-   * Obtiene el logger interno de Pino
-   */
   getPinoLogger(): PinoLogger {
     return this.pinoLogger;
   }
 
-  /**
-   * Cierra los streams del logger
-   */
   close(): void {
-    // Pino maneja el cierre automáticamente, pero podemos forzar el flush
-    this.pinoLogger.flush();
+    // En Pino 9.5.0, usar flush para asegurar que todos los logs se escriban
+    if ('flush' in this.pinoLogger) {
+      (this.pinoLogger as any).flush();
+    }
   }
 }
