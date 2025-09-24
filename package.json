@@ -19,11 +19,11 @@
     "LICENSE"
   ],
   "scripts": {
-    "clean": "rimraf dist",
+    "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\"",
     "build:types": "tsc -p config/tsconfig.build.json --emitDeclarationOnly --declaration --declarationDir dist/types --declarationMap false",
     "build:jsprep": "tsc -p config/tsconfig.build.json --outDir dist/__tmp__ --emitDeclarationOnly false",
     "build:js": "rollup -c config/rollup.config.js",
-    "postbuild": "node -e \"const fs=require('fs'),p=require('path');let s=fs.readFileSync('dist/types/index.d.ts','utf8');s=s.replace(/from\\s+([\\'\\\"])\\.\\/types\\//g,'from $1./types/types/');s=s.replace(/from\\s+([\\'\\\"])\\.\\/(?!types\\/)/g,'from $1./types/');fs.writeFileSync('dist/index.d.ts',s);fs.rmSync('dist/__tmp__',{recursive:true,force:true});console.log('✔ tipos ajustados y temporal limpiado');\"",
+    "postbuild": "node -e \"const fs=require('fs');let s=fs.readFileSync('dist/types/index.d.ts','utf8');s=s.replace(/from\\s+([\\'\\\"])\\.\\/types\\//g,'from $1./types/types/');s=s.replace(/from\\s+([\\'\\\"])\\.\\/(?!types\\/)/g,'from $1./types/');fs.writeFileSync('dist/index.d.ts',s);fs.rmSync('dist/__tmp__',{recursive:true,force:true});console.log('✔ tipos ajustados y temporal limpiado');\"",
     "build": "npm run clean && npm run build:types && npm run build:jsprep && npm run build:js"
   },
   "keywords": [
@@ -33,8 +33,6 @@
     "web",
     "framework"
   ],
-  "author": "Your Team",
-  "license": "MIT",
   "peerDependencies": {
     "@playwright/test": "^1.54.2"
   },
@@ -49,7 +47,6 @@
     "rollup": "^4.50.2",
     "@rollup/plugin-commonjs": "28.0.6",
     "@rollup/plugin-node-resolve": "16.0.1",
-    "rimraf": "^6.0.1",
     "@types/node": "^24.1.0",
     "typescript": "^5.8.3"
   },
