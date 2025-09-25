@@ -14,7 +14,6 @@ export { GestureActions } from './interactions/GestureActions';
 export { InputActions } from './interactions/InputActions';
 
 // Validations
-export { AssertionHelpers } from './validations/AssertionHelpers';
 export { ValidationStrategies } from './validations/ValidationStrategies';
 export { registerCustomMatchers } from './validations/CustomMatchers';
 export type { CustomMatchers } from './validations/CustomMatchers';
@@ -40,7 +39,6 @@ export * from './types/FrameworkTypes';
 // ───────────────────────────── Facade Web.* (default) ──────────────────────────
 import { NavigationActions } from './interactions/NavigationActions';
 import { ElementManager } from './elements/ElementManager';
-import { AssertionHelpers } from './validations/AssertionHelpers';
 import { ConfigManager } from './core/config/ConfigManager';
 import { Locators } from './elements/Locators';
 import { BrowserFactory } from './core/browsers/BrowserFactory';
@@ -50,13 +48,11 @@ import { LoggerFactory } from './core/logging/LoggerFactory';  // ← Importar L
 
 export const Actions  = (page: any) => new NavigationActions(page);
 export const Elements = (page: any) => new ElementManager(page);
-export const Assert   = () => AssertionHelpers;
 export const Config   = { ConfigManager };
 
 const Web = {
   Actions,
   Elements,
-  Assert,
   Config,
   Locators,
   BrowserFactory,
