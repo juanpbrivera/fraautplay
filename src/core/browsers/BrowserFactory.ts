@@ -14,12 +14,15 @@ export class BrowserFactory {
   ): Promise<Browser> {
     // 1) Headless — prioridad: opciones (JSON) > ENV explícito > default(true)
     const envHeadless = process.env.HEADLESS;
+    
+    // CAMBIO CRÍTICO: usar 'in' para verificar si la propiedad existe
+    // Esto permite que headless:false del JSON funcione correctamente
     const headless =
-      options.headless !== undefined
+      'headless' in options  // ← Verifica existencia de la propiedad, no su valor
         ? options.headless
         : (typeof envHeadless !== 'undefined'
             ? envHeadless === 'true' || envHeadless === '1'
-            : true);
+            : true);  // default true si no hay ni JSON ni ENV
 
     // 2) Canal — respeta lo que venga del JSON/options; no forzamos nada
     const channel = (options.channel ?? 'chromium') as BrowserChannel;
@@ -31,8 +34,20 @@ export class BrowserFactory {
     const extraArgs: string[] | undefined = options.args;
     const extraLaunch: LaunchOptions | undefined = options.launchOptions;
 
+    // Log para debugging (puedes comentarlo en producción)
+    console.log('[BrowserFactory] Launch configuration:', {
+      headless: headless,
+      headlessType: typeof headless,
+      channel: channel,
+      slowMo: slowMo,
+      hasExtraArgs: !!extraArgs?.length,
+      envHeadless: envHeadless,
+      optionsHadHeadless: 'headless' in options,
+      originalValue: options.headless
+    });
+
     const { type, launchOpts } = this.#resolveTypeAndOptions({
-      headless,
+      headless: !!headless,  // Asegurar booleano
       slowMo,
       channel,
       extraArgs,
@@ -63,6 +78,13 @@ export class BrowserFactory {
       ...(extraArgs && extraArgs.length ? { args: extraArgs } : {}),
       ...(extraLaunch ?? {}),
     };
+
+    // Log adicional para debug del launch final
+    console.log('[BrowserFactory] Final launch options:', {
+      headless: common.headless,
+      channel: channel,
+      argsCount: extraArgs?.length ?? 0
+    });
 
     switch (channel) {
       case 'chrome':   return { type: chromium, launchOpts: { ...common, channel: 'chrome' } };
