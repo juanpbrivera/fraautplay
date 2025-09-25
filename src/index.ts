@@ -46,6 +46,7 @@ import { Locators } from './elements/Locators';
 import { BrowserFactory } from './core/browsers/BrowserFactory';
 import { registerCustomMatchers } from './validations/CustomMatchers';
 import { SessionManager } from './session/SessionManager';
+import { LoggerFactory } from './core/logging/LoggerFactory';  // ← Importar LoggerFactory
 
 export const Actions  = (page: any) => new NavigationActions(page);
 export const Elements = (page: any) => new ElementManager(page);
@@ -60,7 +61,8 @@ const Web = {
   Locators,
   BrowserFactory,
   registerCustomMatchers,
-  Session: SessionManager, // ← acceso directo: Web.Session.start/stop/stopAll
+  Session: SessionManager,
+  LoggerFactory,  // ← Agregar LoggerFactory al objeto Web
 };
 
 export default Web;

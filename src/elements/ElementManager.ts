@@ -1,573 +1,389 @@
 // src/elements/ElementManager.ts
 
 import { Page, Locator } from 'playwright';
-import { 
-  ElementLocator, 
-  ActionOptions, 
-  WaitOptions,
-  ActionResult 
-} from '../types/FrameworkTypes';
+import { expect } from '@playwright/test';
 import { Locators } from './Locators';
-import { WaitStrategies } from './WaitStrategies';
-import { ElementActions } from './ElementActions';
 import { LoggerFactory } from '../core/logging/LoggerFactory';
-import { ScreenshotHelper } from '../utilities/ScreenshotHelper';
 
-/**
- * API principal para gestionar elementos web
- * Centraliza todas las operaciones sobre elementos con manejo de errores y logging
- */
 export class ElementManager {
   private page: Page;
   private logger = LoggerFactory.getLogger('ElementManager');
   private defaultTimeout: number = 30000;
-  private captureScreenshotsOnError: boolean = true;
 
-  constructor(
-    page: Page, 
-    options?: {
-      defaultTimeout?: number;
-      captureScreenshotsOnError?: boolean;
-    }
-  ) {
+  constructor(page: Page, options?: { defaultTimeout?: number }) {
     this.page = page;
     this.defaultTimeout = options?.defaultTimeout ?? 30000;
-    this.captureScreenshotsOnError = options?.captureScreenshotsOnError ?? true;
-    
-    WaitStrategies.initialize();
   }
 
   /**
-   * Encuentra un elemento en la página
+   * Convierte cualquier locator al formato de Playwright
    */
-  async find(
-    locator: ElementLocator,
-    options?: WaitOptions
-  ): Promise<Locator> {
-    try {
-      this.logger.debug('Finding element', { 
-        locator: locator.description 
-      });
-      
-      return await WaitStrategies.waitForElement(
-        this.page, 
-        locator, 
-        { timeout: this.defaultTimeout, ...options }
-      );
-    } catch (error) {
-      await this.handleError('find', locator, error as Error);
-      throw error;
+  private obtenerElemento(locator: any): Locator {
+    return Locators.getLocator(this.page, locator);
+  }
+
+  // ═══════════════════════════════════════════════════════════════════
+  // ACCIONES
+  // ═══════════════════════════════════════════════════════════════════
+
+  /**
+   * Hacer clic en un elemento
+   */
+  async hacerClic(locator: any): Promise<void> {
+    await this.obtenerElemento(locator).click({ timeout: this.defaultTimeout });
+  }
+
+  /**
+   * Hacer doble clic en un elemento
+   */
+  async dobleClic(locator: any): Promise<void> {
+    await this.obtenerElemento(locator).dblclick({ timeout: this.defaultTimeout });
+  }
+
+  /**
+   * Hacer clic derecho en un elemento
+   */
+  async clicDerecho(locator: any): Promise<void> {
+    await this.obtenerElemento(locator).click({ button: 'right', timeout: this.defaultTimeout });
+  }
+
+  /**
+   * Escribir texto en un campo
+   * @param locator - Elemento donde escribir
+   * @param texto - Texto a escribir
+   * @param limpiarPrimero - Si se debe limpiar el campo antes de escribir
+   */
+  async escribir(locator: any, texto: string, limpiarPrimero?: boolean): Promise<void> {
+    const element = this.obtenerElemento(locator);
+    if (limpiarPrimero) {
+      await element.clear();
     }
+    await element.type(texto, { timeout: this.defaultTimeout });
   }
 
   /**
-   * Encuentra múltiples elementos
+   * Llenar un campo de texto (reemplaza todo el contenido)
    */
-  async findAll(
-    locator: ElementLocator,
-    options?: WaitOptions
-  ): Promise<Locator[]> {
-    try {
-      this.logger.debug('Finding all elements', { 
-        locator: locator.description 
-      });
-      
-      // Esperar a que al menos un elemento esté presente
-      await WaitStrategies.waitForElement(
-        this.page, 
-        locator, 
-        { timeout: this.defaultTimeout, ...options }
-      );
-      
-      const elements = Locators.getLocator(this.page, locator);
-      const count = await elements.count();
-      
-      const result: Locator[] = [];
-      for (let i = 0; i < count; i++) {
-        result.push(elements.nth(i));
-      }
-      
-      this.logger.debug('Found multiple elements', { 
-        locator: locator.description,
-        count 
-      });
-      
-      return result;
-    } catch (error) {
-      await this.handleError('findAll', locator, error as Error);
-      throw error;
-    }
+  async llenar(locator: any, texto: string): Promise<void> {
+    await this.obtenerElemento(locator).fill(texto);
   }
 
   /**
-   * Click en un elemento
+   * Limpiar el contenido de un campo
    */
-  async click(
-    locator: ElementLocator,
-    options?: ActionOptions
-  ): Promise<ActionResult<void>> {
-    const result = await ElementActions.click(
-      this.page, 
-      locator, 
-      { timeout: this.defaultTimeout, ...options }
-    );
-    
-    if (!result.success && this.captureScreenshotsOnError) {
-      result.screenshot = await this.captureScreenshot('click_error');
-    }
-    
-    return result;
+  async limpiar(locator: any): Promise<void> {
+    await this.obtenerElemento(locator).clear();
   }
 
   /**
-   * Doble click
+   * Seleccionar una o varias opciones de un menú desplegable
    */
-  async doubleClick(
-    locator: ElementLocator,
-    options?: ActionOptions
-  ): Promise<ActionResult<void>> {
-    const result = await ElementActions.doubleClick(
-      this.page, 
-      locator, 
-      { timeout: this.defaultTimeout, ...options }
-    );
-    
-    if (!result.success && this.captureScreenshotsOnError) {
-      result.screenshot = await this.captureScreenshot('double_click_error');
-    }
-    
-    return result;
+  async seleccionarOpcion(locator: any, valor: string | string[]): Promise<void> {
+    await this.obtenerElemento(locator).selectOption(valor);
   }
 
   /**
-   * Click derecho
+   * Marcar una casilla de verificación
    */
-  async rightClick(
-    locator: ElementLocator,
-    options?: ActionOptions
-  ): Promise<ActionResult<void>> {
-    const result = await ElementActions.rightClick(
-      this.page, 
-      locator, 
-      { timeout: this.defaultTimeout, ...options }
-    );
-    
-    if (!result.success && this.captureScreenshotsOnError) {
-      result.screenshot = await this.captureScreenshot('right_click_error');
-    }
-    
-    return result;
+  async marcar(locator: any): Promise<void> {
+    await this.obtenerElemento(locator).check();
   }
 
   /**
-   * Escribir texto
+   * Desmarcar una casilla de verificación
    */
-  async type(
-    locator: ElementLocator,
-    text: string,
-    options?: ActionOptions & { clearFirst?: boolean }
-  ): Promise<ActionResult<void>> {
-    const result = await ElementActions.type(
-      this.page, 
-      locator, 
-      text,
-      { timeout: this.defaultTimeout, ...options }
-    );
-    
-    if (!result.success && this.captureScreenshotsOnError) {
-      result.screenshot = await this.captureScreenshot('type_error');
-    }
-    
-    return result;
+  async desmarcar(locator: any): Promise<void> {
+    await this.obtenerElemento(locator).uncheck();
   }
 
   /**
-   * Limpiar campo
+   * Posicionar el cursor sobre un elemento (hover)
    */
-  async clear(
-    locator: ElementLocator,
-    options?: ActionOptions
-  ): Promise<ActionResult<void>> {
-    return ElementActions.clear(
-      this.page, 
-      locator, 
-      { timeout: this.defaultTimeout, ...options }
-    );
+  async posicionarSobre(locator: any): Promise<void> {
+    await this.obtenerElemento(locator).hover();
   }
 
   /**
-   * Seleccionar opción
+   * Presionar una tecla en un elemento
    */
-  async selectOption(
-    locator: ElementLocator,
-    value: string | string[],
-    options?: ActionOptions
-  ): Promise<ActionResult<string[]>> {
-    return ElementActions.selectOption(
-      this.page, 
-      locator, 
-      value,
-      { timeout: this.defaultTimeout, ...options }
-    );
+  async presionarTecla(locator: any, tecla: string): Promise<void> {
+    await this.obtenerElemento(locator).press(tecla);
   }
 
   /**
-   * Marcar/desmarcar checkbox
+   * Subir uno o varios archivos
    */
-  async check(
-    locator: ElementLocator,
-    checked: boolean = true,
-    options?: ActionOptions
-  ): Promise<ActionResult<void>> {
-    return ElementActions.check(
-      this.page, 
-      locator, 
-      checked,
-      { timeout: this.defaultTimeout, ...options }
-    );
+  async subirArchivo(locator: any, rutaArchivo: string | string[]): Promise<void> {
+    await this.obtenerElemento(locator).setInputFiles(rutaArchivo);
   }
 
   /**
-   * Subir archivo
+   * Arrastrar un elemento hasta otro
    */
-  async uploadFile(
-    locator: ElementLocator,
-    filePath: string | string[],
-    options?: ActionOptions
-  ): Promise<ActionResult<void>> {
-    return ElementActions.uploadFile(
-      this.page, 
-      locator, 
-      filePath,
-      { timeout: this.defaultTimeout, ...options }
-    );
+  async arrastrarHasta(elementoOrigen: any, elementoDestino: any): Promise<void> {
+    await this.obtenerElemento(elementoOrigen).dragTo(this.obtenerElemento(elementoDestino));
   }
 
   /**
-   * Hover sobre elemento
+   * Desplazar la vista hasta un elemento
    */
-  async hover(
-    locator: ElementLocator,
-    options?: ActionOptions
-  ): Promise<ActionResult<void>> {
-    return ElementActions.hover(
-      this.page, 
-      locator, 
-      { timeout: this.defaultTimeout, ...options }
-    );
+  async desplazarHasta(locator: any): Promise<void> {
+    await this.obtenerElemento(locator).scrollIntoViewIfNeeded();
+  }
+
+  // ═══════════════════════════════════════════════════════════════════
+  // OBTENER INFORMACIÓN
+  // ═══════════════════════════════════════════════════════════════════
+
+  /**
+   * Obtener el texto de un elemento
+   */
+  async obtenerTexto(locator: any): Promise<string> {
+    return await this.obtenerElemento(locator).textContent() ?? '';
   }
 
   /**
-   * Drag and drop
+   * Obtener el valor de un campo de entrada
    */
-  async dragAndDrop(
-    sourceLocator: ElementLocator,
-    targetLocator: ElementLocator,
-    options?: ActionOptions
-  ): Promise<ActionResult<void>> {
-    return ElementActions.dragAndDrop(
-      this.page, 
-      sourceLocator, 
-      targetLocator,
-      { timeout: this.defaultTimeout, ...options }
-    );
+  async obtenerValor(locator: any): Promise<string> {
+    return await this.obtenerElemento(locator).inputValue();
   }
 
   /**
-   * Presionar tecla
+   * Obtener el valor de un atributo
    */
-  async press(
-    locator: ElementLocator,
-    key: string,
-    options?: ActionOptions
-  ): Promise<ActionResult<void>> {
-    return ElementActions.press(
-      this.page, 
-      locator, 
-      key,
-      { timeout: this.defaultTimeout, ...options }
-    );
+  async obtenerAtributo(locator: any, nombreAtributo: string): Promise<string | null> {
+    return await this.obtenerElemento(locator).getAttribute(nombreAtributo);
   }
 
   /**
-   * Obtener texto
+   * Contar cuántos elementos coinciden con el localizador
    */
-  async getText(
-    locator: ElementLocator,
-    options?: ActionOptions
-  ): Promise<string> {
-    const result = await ElementActions.getText(
-      this.page, 
-      locator, 
-      { timeout: this.defaultTimeout, ...options }
-    );
-    
-    if (!result.success) {
-      throw result.error || new Error('Failed to get text');
-    }
-    
-    return result.data || '';
+  async contar(locator: any): Promise<number> {
+    return await this.obtenerElemento(locator).count();
   }
 
   /**
-   * Obtener atributo
+   * Verificar si existe al menos un elemento
    */
-  async getAttribute(
-    locator: ElementLocator,
-    attributeName: string,
-    options?: ActionOptions
-  ): Promise<string | null> {
-    const result = await ElementActions.getAttribute(
-      this.page, 
-      locator, 
-      attributeName,
-      { timeout: this.defaultTimeout, ...options }
-    );
-    
-    if (!result.success) {
-      throw result.error || new Error('Failed to get attribute');
-    }
-    
-    return result.data || null;
+  async existe(locator: any): Promise<boolean> {
+    return await this.contar(locator) > 0;
   }
 
   /**
-   * Verifica si un elemento está visible
+   * Verificar si un elemento es visible
    */
-  async isVisible(
-    locator: ElementLocator,
-    options?: WaitOptions
-  ): Promise<boolean> {
-    try {
-      const element = await this.find(locator, { 
-        ...options, 
-        state: 'visible' 
-      });
-      return await element.isVisible();
-    } catch {
-      return false;
-    }
+  async esVisible(locator: any): Promise<boolean> {
+    return await this.obtenerElemento(locator).isVisible();
   }
 
   /**
-   * Verifica si un elemento está habilitado
+   * Verificar si un elemento está habilitado
    */
-  async isEnabled(
-    locator: ElementLocator,
-    options?: WaitOptions
-  ): Promise<boolean> {
-    try {
-      const element = await this.find(locator, options);
-      return await element.isEnabled();
-    } catch {
-      return false;
-    }
+  async estaHabilitado(locator: any): Promise<boolean> {
+    return await this.obtenerElemento(locator).isEnabled();
   }
 
   /**
-   * Verifica si un checkbox está marcado
+   * Verificar si una casilla está marcada
    */
-  async isChecked(
-    locator: ElementLocator,
-    options?: WaitOptions
-  ): Promise<boolean> {
-    try {
-      const element = await this.find(locator, options);
-      return await element.isChecked();
-    } catch {
-      return false;
-    }
+  async estaMarcado(locator: any): Promise<boolean> {
+    return await this.obtenerElemento(locator).isChecked();
   }
 
   /**
-   * Espera a que un elemento esté visible
+   * Capturar imagen de un elemento
    */
-  async waitForVisible(
-    locator: ElementLocator,
-    options?: WaitOptions
-  ): Promise<Locator> {
-    return WaitStrategies.waitForVisible(
-      this.page, 
-      locator, 
-      { timeout: this.defaultTimeout, ...options }
-    );
+  async capturarImagen(locator: any, opciones?: any): Promise<Buffer> {
+    return await this.obtenerElemento(locator).screenshot(opciones);
   }
 
-  /**
-   * Espera a que un elemento esté oculto
-   */
-  async waitForHidden(
-    locator: ElementLocator,
-    options?: WaitOptions
-  ): Promise<void> {
-    return WaitStrategies.waitForHidden(
-      this.page, 
-      locator, 
-      { timeout: this.defaultTimeout, ...options }
-    );
-  }
+  // ═══════════════════════════════════════════════════════════════════
+  // ESPERAS
+  // ═══════════════════════════════════════════════════════════════════
 
   /**
-   * Espera a que un elemento contenga texto
+   * Esperar a que un elemento sea visible
    */
-  async waitForText(
-    locator: ElementLocator,
-    text: string,
-    options?: WaitOptions
-  ): Promise<Locator> {
-    return WaitStrategies.waitForText(
-      this.page, 
-      locator, 
-      text,
-      { timeout: this.defaultTimeout, ...options }
-    );
-  }
-
-  /**
-   * Ejecuta una acción con reintentos
-   */
-  async withRetry<T>(
-    action: () => Promise<T>,
-    options?: {
-      maxAttempts?: number;
-      delay?: number;
-      backoff?: boolean;
-    }
-  ): Promise<T> {
-    return WaitStrategies.waitWithRetry(action, {
-      timeout: this.defaultTimeout,
-      ...options
+  async esperarVisible(locator: any): Promise<void> {
+    await this.obtenerElemento(locator).waitFor({ 
+      state: 'visible', 
+      timeout: this.defaultTimeout 
     });
   }
 
   /**
-   * Obtiene el conteo de elementos que coinciden con el localizador
+   * Esperar a que un elemento esté oculto
    */
-  async count(locator: ElementLocator): Promise<number> {
-    try {
-      const element = Locators.getLocator(this.page, locator);
-      return await element.count();
-    } catch (error) {
-      this.logger.error('Failed to count elements', error as Error, {
-        locator: locator.description
-      });
-      return 0;
-    }
-  }
-
-  /**
-   * Verifica si existe al menos un elemento
-   */
-  async exists(locator: ElementLocator): Promise<boolean> {
-    const count = await this.count(locator);
-    return count > 0;
-  }
-
-  /**
-   * Scroll hasta un elemento
-   */
-  async scrollIntoView(
-    locator: ElementLocator,
-    options?: ActionOptions
-  ): Promise<ActionResult<void>> {
-    const startTime = Date.now();
-    
-    try {
-      const element = await this.find(locator, options);
-      await element.scrollIntoViewIfNeeded();
-      
-      const duration = Date.now() - startTime;
-      this.logger.debug('Scrolled to element', {
-        locator: locator.description,
-        duration
-      });
-      
-      return {
-        success: true,
-        duration
-      };
-    } catch (error) {
-      const duration = Date.now() - startTime;
-      this.logger.error('Failed to scroll to element', error as Error, {
-        locator: locator.description,
-        duration
-      });
-      
-      return {
-        success: false,
-        error: error as Error,
-        duration
-      };
-    }
-  }
-
-  /**
-   * Tomar screenshot de un elemento específico
-   */
-  async screenshot(
-    locator: ElementLocator,
-    options?: {
-      path?: string;
-      type?: 'png' | 'jpeg';
-      quality?: number;
-    }
-  ): Promise<Buffer> {
-    try {
-      const element = await this.find(locator);
-      return await element.screenshot(options);
-    } catch (error) {
-      this.logger.error('Failed to take element screenshot', error as Error, {
-        locator: locator.description
-      });
-      throw error;
-    }
-  }
-
-  /**
-   * Manejo centralizado de errores
-   */
-  private async handleError(
-    action: string,
-    locator: ElementLocator,
-    error: Error
-  ): Promise<void> {
-    this.logger.error(`Element action failed: ${action}`, error, {
-      locator: locator.description,
-      action
+  async esperarOculto(locator: any): Promise<void> {
+    await this.obtenerElemento(locator).waitFor({ 
+      state: 'hidden', 
+      timeout: this.defaultTimeout 
     });
+  }
+
+  /**
+   * Esperar a que un elemento esté habilitado
+   */
+  async esperarHabilitado(locator: any): Promise<void> {
+    const element = this.obtenerElemento(locator);
+    await element.waitFor({ state: 'visible', timeout: this.defaultTimeout });
+    await expect(element).toBeEnabled({ timeout: this.defaultTimeout });
+  }
+
+  /**
+   * Esperar a que un elemento esté presente en el DOM
+   */
+  async esperarPresente(locator: any): Promise<void> {
+    await this.obtenerElemento(locator).waitFor({ 
+      state: 'attached', 
+      timeout: this.defaultTimeout 
+    });
+  }
+
+  // ═══════════════════════════════════════════════════════════════════
+  // VALIDACIONES (ASSERTIONS)
+  // ═══════════════════════════════════════════════════════════════════
+
+  /**
+   * Validar que el elemento está visible
+   */
+  async validarVisible(locator: any): Promise<void> {
+    await expect(this.obtenerElemento(locator)).toBeVisible({ 
+      timeout: this.defaultTimeout 
+    });
+  }
+
+  /**
+   * Validar que el elemento está oculto
+   */
+  async validarOculto(locator: any): Promise<void> {
+    await expect(this.obtenerElemento(locator)).toBeHidden({ 
+      timeout: this.defaultTimeout 
+    });
+  }
+
+  /**
+   * Validar que el elemento tiene el texto exacto esperado
+   */
+  async validarTexto(locator: any, textoEsperado: string | RegExp): Promise<void> {
+    await expect(this.obtenerElemento(locator)).toHaveText(textoEsperado, { 
+      timeout: this.defaultTimeout 
+    });
+  }
+
+  /**
+   * Validar que el elemento contiene el texto
+   */
+  async validarContieneTexto(locator: any, texto: string): Promise<void> {
+    await expect(this.obtenerElemento(locator)).toContainText(texto, { 
+      timeout: this.defaultTimeout 
+    });
+  }
+
+  /**
+   * Validar que el campo tiene el valor esperado
+   */
+  async validarValor(locator: any, valorEsperado: string | RegExp): Promise<void> {
+    await expect(this.obtenerElemento(locator)).toHaveValue(valorEsperado, { 
+      timeout: this.defaultTimeout 
+    });
+  }
+
+  /**
+   * Validar que el elemento está habilitado
+   */
+  async validarHabilitado(locator: any): Promise<void> {
+    await expect(this.obtenerElemento(locator)).toBeEnabled({ 
+      timeout: this.defaultTimeout 
+    });
+  }
+
+  /**
+   * Validar que el elemento está deshabilitado
+   */
+  async validarDeshabilitado(locator: any): Promise<void> {
+    await expect(this.obtenerElemento(locator)).toBeDisabled({ 
+      timeout: this.defaultTimeout 
+    });
+  }
+
+  /**
+   * Validar que la casilla está marcada
+   */
+  async validarMarcado(locator: any): Promise<void> {
+    await expect(this.obtenerElemento(locator)).toBeChecked({ 
+      timeout: this.defaultTimeout 
+    });
+  }
+
+  /**
+   * Validar cantidad de elementos
+   */
+  async validarCantidad(locator: any, cantidadEsperada: number): Promise<void> {
+    await expect(this.obtenerElemento(locator)).toHaveCount(cantidadEsperada, { 
+      timeout: this.defaultTimeout 
+    });
+  }
+
+  /**
+   * Validar que el elemento tiene un atributo con valor específico
+   */
+  async validarAtributo(locator: any, nombreAtributo: string, valorEsperado: string | RegExp): Promise<void> {
+    await expect(this.obtenerElemento(locator)).toHaveAttribute(nombreAtributo, valorEsperado, { 
+      timeout: this.defaultTimeout 
+    });
+  }
+
+  /**
+   * Validar que el elemento tiene una clase CSS
+   */
+  async validarClase(locator: any, claseEsperada: string | RegExp): Promise<void> {
+    await expect(this.obtenerElemento(locator)).toHaveClass(claseEsperada, { 
+      timeout: this.defaultTimeout 
+    });
+  }
+
+  // ═══════════════════════════════════════════════════════════════════
+  // MÉTODOS AUXILIARES
+  // ═══════════════════════════════════════════════════════════════════
+
+  /**
+   * Buscar un elemento (retorna el primer match)
+   */
+  async buscar(locator: any): Promise<Locator> {
+    const elemento = this.obtenerElemento(locator);
+    await elemento.waitFor({ state: 'attached', timeout: this.defaultTimeout });
+    return elemento;
+  }
+
+  /**
+   * Buscar todos los elementos que coincidan
+   */
+  async buscarTodos(locator: any): Promise<Locator[]> {
+    const elementos = this.obtenerElemento(locator);
+    const cantidad = await elementos.count();
+    const resultado: Locator[] = [];
     
-    if (this.captureScreenshotsOnError) {
-      await this.captureScreenshot(`${action}_error`);
+    for (let i = 0; i < cantidad; i++) {
+      resultado.push(elementos.nth(i));
     }
+    
+    return resultado;
   }
 
   /**
-   * Captura screenshot para debugging
+   * Obtener la página actual (para casos especiales)
    */
-  private async captureScreenshot(prefix: string): Promise<string | undefined> {
-    try {
-      return await ScreenshotHelper.capture(this.page, { 
-        prefix,
-        fullPage: true 
-      });
-    } catch (error) {
-      this.logger.warn('Failed to capture error screenshot', { error });
-      return undefined;
-    }
-  }
-
-  /**
-   * Actualiza el timeout por defecto
-   */
-  setDefaultTimeout(timeout: number): void {
-    this.defaultTimeout = timeout;
-    this.logger.debug('Default timeout updated', { timeout });
-  }
-
-  /**
-   * Obtiene la página actual
-   */
-  getPage(): Page {
+  obtenerPagina(): Page {
     return this.page;
+  }
+
+  /**
+   * Actualizar el timeout por defecto
+   */
+  establecerTimeout(nuevoTimeout: number): void {
+    this.defaultTimeout = nuevoTimeout;
+    this.logger.debug('Timeout actualizado', { nuevoTimeout });
   }
 }
