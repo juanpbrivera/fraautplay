@@ -34,18 +34,6 @@ export class BrowserFactory {
     const extraArgs: string[] | undefined = options.args;
     const extraLaunch: LaunchOptions | undefined = options.launchOptions;
 
-    // Log para debugging (puedes comentarlo en producción)
-    console.log('[BrowserFactory] Launch configuration:', {
-      headless: headless,
-      headlessType: typeof headless,
-      channel: channel,
-      slowMo: slowMo,
-      hasExtraArgs: !!extraArgs?.length,
-      envHeadless: envHeadless,
-      optionsHadHeadless: 'headless' in options,
-      originalValue: options.headless
-    });
-
     const { type, launchOpts } = this.#resolveTypeAndOptions({
       headless: !!headless,  // Asegurar booleano
       slowMo,
@@ -78,13 +66,6 @@ export class BrowserFactory {
       ...(extraArgs && extraArgs.length ? { args: extraArgs } : {}),
       ...(extraLaunch ?? {}),
     };
-
-    // Log adicional para debug del launch final
-    console.log('[BrowserFactory] Final launch options:', {
-      headless: common.headless,
-      channel: channel,
-      argsCount: extraArgs?.length ?? 0
-    });
 
     switch (channel) {
       case 'chrome':   return { type: chromium, launchOpts: { ...common, channel: 'chrome' } };
