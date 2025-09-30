@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",                                  /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */
+    "module": "CommonJS",                                /* Specify what module code is generated. */
+    "moduleResolution": "node",                          /* specifies that the compiler should use the algorithm that mimics Node.js's module resolution. */
+    "strict": true,                                      /* Enable all strict type-checking options. */    
+    "esModuleInterop": true,                             /* Emit additional JavaScript to ease support for importing CommonJS modules. This enables 'allowSyntheticDefaultImports' for type compatibility. */    
+    "skipLibCheck": true,                                /* Skip type checking all .d.ts files. */ 
+    "forceConsistentCasingInFileNames": true,            /* Ensure that casing is correct in imports. */   
+    "declaration": true,
+    "outDir": "dist",
+    "rootDir": ".",
+    "baseUrl": ".",
+    "paths": {
+      "@core/*": ["core/*"],
+      "@cucumber/*": ["cucumber/*"],
+      "@assertions/*": ["assertions/*"],
+      "@helpers/*": ["helpers/*"],
+      "@types/*": ["types/*"]
+    }
+  },
+  "include": ["**/*"],
+  "exclude": ["node_modules", "dist"]
+}

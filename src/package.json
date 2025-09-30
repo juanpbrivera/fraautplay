@@ -1,0 +1,33 @@
+{
+  "name": "api-continuous-testing-framework-v1",
+  "version": "1.0.0",
+  "description": "Framework de automatización de pruebas API",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/**/*",
+    "templates/"
+  ],
+  "scripts": {
+    "build": "tsc --project tsconfig.json",
+    "build:watch": "tsc --project tsconfig.json --watch",
+    "prepublishOnly": "npm run build",
+    "test": "npx playwright test"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "",
+  "devDependencies": {
+    "@cucumber/cucumber": "^12.2.0",
+    "@types/node": "^24.1.0",
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "@playwright/test": "^1.54.2",
+    "csv-parser": "^3.2.0",
+    "docx-templates": "^4.14.1",
+    "dotenv": "^17.2.2",
+    "pino": "^9.10.0",
+    "pino-pretty": "^13.1.1"
+  }
+}
