@@ -44,9 +44,6 @@
     "pino-pretty": "^13.1.1"
   },
   "devDependencies": {
-    "rollup": "^4.50.2",
-    "@rollup/plugin-commonjs": "28.0.6",
-    "@rollup/plugin-node-resolve": "16.0.1",
     "@types/node": "^24.1.0",
     "typescript": "^5.8.3"
   },

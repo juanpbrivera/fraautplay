@@ -1,23 +1,16 @@
 {
   "compilerOptions": {
-    "target": "ES2022",
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
+    "target": "ES2020",
+    "module": "CommonJS",
+    "moduleResolution": "Node",
     "strict": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "resolveJsonModule": true,
     "skipLibCheck": true,
-    "noEmit": true,
-    "baseUrl": "..",
+    "sourceMap": false,
     "rootDir": "../src",
-    "importHelpers": true,
+    "outDir": "../dist",
     "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true,
-    "forceConsistentCasingInFileNames": true,
-    "types": ["node", "@playwright/test"]
+    "declarationMap": false
   },
   "include": ["../src/**/*"],
-  "exclude": ["../node_modules", "../dist", "**/*.test.ts", "**/*.spec.ts"]
+  "exclude": ["../dist", "../node_modules"]
 }
